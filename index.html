@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kiosque Europa — Capas de Jornais</title>
+
+<!-- ═══ PWA: META TAGS ANDROID / CHROME ═══ -->
+<meta name="application-name" content="Kiosque Europa">
+<meta name="description" content="As principais capas dos jornais europeus, todos os dias.">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kiosque">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Kiosque Europa">
+<meta property="og:description" content="As principais capas dos jornais europeus, todos os dias.">
+<meta property="og:type" content="website">
+
+<!-- ═══ PWA: WEB APP MANIFEST (inline via data URI) ═══ -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22%3A%22Kiosque Europa%22%2C
+  %22short_name%22%3A%22Kiosque%22%2C
+  %22description%22%3A%22As%20principais%20capas%20dos%20jornais%20europeus%22%2C
+  %22start_url%22%3A%22.%22%2C
+  %22display%22%3A%22standalone%22%2C
+  %22orientation%22%3A%22portrait%22%2C
+  %22background_color%22%3A%22%23f5f0e8%22%2C
+  %22theme_color%22%3A%22%230d0d0d%22%2C
+  %22lang%22%3A%22pt%22%2C
+  %22categories%22%3A[%22news%22%2C%22lifestyle%22]%2C
+  %22icons%22%3A[
+    {%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520fill%3D'%25230d0d0d'%2520rx%3D'24'%2F%253E%253Ctext%2520x%3D'96'%2520y%3D'130'%2520font-size%3D'110'%2520text-anchor%3D'middle'%2520font-family%3D'serif'%2520fill%3D'%23f5f0e8'%253EK%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22}
+  ]
+}">
+
+<!-- Fallback icon for browsers -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230d0d0d' rx='6'/><text x='16' y='24' font-size='20' text-anchor='middle' font-family='serif' fill='%23f5f0e8'>K</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --red: #c0392b;
+    --gold: #b8952a;
+    --grey: #6b6560;
+    --divider: rgba(13,13,13,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Libre Baskerville', serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Paper texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.6;
+  }
+
+  /* ─── MASTHEAD ─── */
+  header {
+    border-bottom: 3px double var(--ink);
+    padding: 0;
+    position: relative;
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 40px;
+    border-bottom: 1px solid var(--divider);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--grey);
+  }
+
+  .masthead-main {
+    text-align: center;
+    padding: 24px 40px 20px;
+    position: relative;
+  }
+
+  .masthead-main::before,
+  .masthead-main::after {
+    content: '✦';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--gold);
+  }
+  .masthead-main::before { left: 40px; }
+  .masthead-main::after  { right: 40px; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-top: 6px;
+  }
+
+  .rule-ornament {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 40px;
+    border-top: 1px solid var(--divider);
+  }
+  .rule-ornament::before, .rule-ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ink);
+  }
+  .rule-ornament span {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--grey);
+    white-space: nowrap;
+  }
+
+  /* ─── FILTER BAR ─── */
+  .filter-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    border-bottom: 2px solid var(--ink);
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--cream);
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--grey);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { color: var(--ink); }
+  .filter-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--red);
+    font-weight: 700;
+  }
+
+  /* ─── MAIN GRID ─── */
+  main {
+    padding: 36px 40px 60px;
+  }
+
+  .date-banner {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey);
+    text-align: center;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .date-banner::before, .date-banner::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--divider);
+  }
+
+  .papers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 32px 24px;
+  }
+
+  /* ─── CARD ─── */
+  .paper-card {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+    animation: fadeUp 0.5s ease both;
+  }
+  .paper-card:hover { transform: translateY(-4px); }
+  .paper-card:hover .cover-img { box-shadow: 6px 8px 28px rgba(0,0,0,0.28); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cover-wrap {
+    position: relative;
+    background: #ccc;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.12);
+    box-shadow: 3px 4px 14px rgba(0,0,0,0.15);
+    aspect-ratio: 3/4;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .paper-card:hover .cover-img { transform: scale(1.03); }
+
+  .cover-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--cream);
+    padding: 20px;
+    text-align: center;
+  }
+  .cover-placeholder .ph-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+  .cover-placeholder .ph-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+
+  .flag-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.4));
+  }
+
+  .loading-bar {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--cream) 25%, var(--paper) 50%, var(--cream) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+
+  .card-meta {
+    padding: 10px 0 0;
+    border-top: 1px solid var(--divider);
+    margin-top: 10px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  .card-country {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-top: 3px;
+  }
+
+  .card-link {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    text-decoration: none;
+    margin-top: 5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .card-link:hover { border-bottom-color: var(--red); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.85);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--paper);
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid var(--ink);
+    transform: scale(0.95);
+    transition: transform 0.3s;
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 2px double var(--ink);
+    background: var(--cream);
+  }
+  .modal-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .modal-close {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink);
+    line-height: 1;
+    padding: 4px 8px;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--red); }
+
+  .modal-body { padding: 20px; }
+
+  .modal-img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--divider);
+    margin-bottom: 16px;
+  }
+  .modal-country {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .modal-desc {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--ink);
+    opacity: 0.8;
+    margin-bottom: 16px;
+  }
+  .modal-visit {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .modal-visit:hover { background: var(--red); }
+
+  /* ─── NO RESULTS ─── */
+  .no-results {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 0;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--grey);
+    font-size: 1.2rem;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 2px double var(--ink);
+    padding: 20px 40px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--grey);
+    text-transform: uppercase;
+    background: var(--cream);
+  }
+
+  @media (max-width: 600px) {
+    .masthead-top, main, .filter-bar { padding-left: 16px; padding-right: 16px; }
+    .masthead-main { padding-left: 16px; padding-right: 16px; }
+    .masthead-main::before, .masthead-main::after { display: none; }
+    .rule-ornament { padding: 6px 16px; }
+    footer { padding: 16px; }
+    .papers-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
+  }
+
+  /* ─── PWA INSTALL BANNER ─── */
+  #install-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    z-index: 300;
+    align-items: center;
+    gap: 12px;
+    border-top: 2px solid var(--gold);
+    animation: slideUp 0.4s ease;
+  }
+  #install-banner.visible { display: flex; }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  #install-banner .banner-icon { font-size: 24px; flex-shrink: 0; }
+  #install-banner .banner-text { flex: 1; }
+  #install-banner .banner-text strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+  }
+  #install-banner .banner-text span {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+  #install-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  #install-dismiss {
+    background: none;
+    border: none;
+    color: var(--paper);
+    opacity: 0.5;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+  #install-dismiss:hover { opacity: 1; }
+
+  /* ─── OFFLINE TOAST ─── */
+  #offline-toast {
+    display: none;
+    position: fixed;
+    top: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--red);
+    color: white;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    z-index: 400;
+    white-space: nowrap;
+    border-radius: 2px;
+  }
+  #offline-toast.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="masthead-top">
+    <span id="today-date"></span>
+    <span>Edição Europeia</span>
+    <span>Capas do Dia</span>
+  </div>
+  <div class="masthead-main">
+    <h1>Kiosque Europa</h1>
+    <p class="subtitle">As principais capas dos jornais europeus</p>
+  </div>
+  <div class="rule-ornament"><span>Est. MMXXV · Curadoria Editorial · Europa</span></div>
+</header>
+
+<nav class="filter-bar" id="filterBar"></nav>
+
+<main>
+  <p class="date-banner" id="dateBanner"></p>
+  <div class="papers-grid" id="grid"></div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle"></h2>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <img class="modal-img" id="modalImg" src="" alt="">
+      <p class="modal-country" id="modalCountry"></p>
+      <p class="modal-desc" id="modalDesc"></p>
+      <a class="modal-visit" id="modalLink" href="#" target="_blank">Visitar website →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>As capas são obtidas via Newseum / kiosque.press. Todos os direitos pertencem aos respectivos títulos.</p>
+</footer>
+
+<script>
+const NEWSPAPERS = [
+  // PORTUGAL
+  { id: "publico",      name: "Público",           country: "Portugal",     flag: "🇵🇹", lang: "pt", type: "quality",
+    cover: "https://kiosk.pub/api/v1/cover?newspaper=publico&date=today",
+    fallback: "https://static.publico.pt/img/publico-logo.png",
+    url: "https://www.publico.pt", desc: "O Público é um dos principais jornais de referência de Portugal, fundado em 1990, com enfoque em política, cultura e internacional." },
+  { id: "expresso",     name: "Expresso",           country: "Portugal",     flag: "🇵🇹", lang: "pt", type: "quality",
+    cover: "https://kiosk.pub/api/v1/cover?newspaper=expresso&date=today",
+    url: "https://expresso.pt", desc: "O Expresso é o semanário de maior tiragem em Portugal, referência em análise política e económica." },
+  { id: "dn",           name: "Diário de Notícias", country: "Portugal",     flag: "🇵🇹", lang: "pt", type: "general",
+    cover: "https://kiosk.pub/api/v1/cover?newspaper=dn&date=today",
+    url: "https://www.dn.pt", desc: "Fundado em 1864, o Diário de Notícias é um dos jornais mais antigos de Portugal e referência do jornalismo nacional." },
+  { id: "cm",           name: "Correio da Manhã",   country: "Portugal",     flag: "🇵🇹", lang: "pt", type: "general",
+    cover: "https://kiosk.pub/api/v1/cover?newspaper=cm&date=today",
+    url: "https://www.cmjornal.pt", desc: "O Correio da Manhã é o jornal diário de maior circulação em Portugal." },
+  { id: "jn",           name: "Jornal de Notícias", country: "Portugal",     flag: "🇵🇹", lang: "pt", type: "general",
+    cover: "https://kiosk.pub/api/v1/cover?newspaper=jn&date=today",
+    url: "https://www.jn.pt", desc: "O Jornal de Notícias, fundado no Porto em 1888, é um dos jornais regionais mais influentes do país." },
+
+  // SPAIN
+  { id: "elpais",       name: "El País",            country: "Espanha",      flag: "🇪🇸", lang: "es", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/el-pais-ES.jpg",
+    url: "https://elpais.com", desc: "El País é o jornal de maior circulação em Espanha, fundado em 1976, referência do jornalismo ibérico e latino-americano." },
+  { id: "elmundo",      name: "El Mundo",           country: "Espanha",      flag: "🇪🇸", lang: "es", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/el-mundo-ES.jpg",
+    url: "https://www.elmundo.es", desc: "El Mundo é um dos principais diários espanhóis, com cobertura extensiva de política e cultura." },
+  { id: "abc",          name: "ABC",                country: "Espanha",      flag: "🇪🇸", lang: "es", type: "general",
+    cover: "https://img.kiosk.press/newspaper/abc-ES.jpg",
+    url: "https://www.abc.es", desc: "O ABC é um dos jornais mais antigos de Espanha, fundado em 1903, de tradição monárquica e conservadora." },
+  { id: "lavanguardia", name: "La Vanguardia",      country: "Espanha",      flag: "🇪🇸", lang: "es", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/la-vanguardia-ES.jpg",
+    url: "https://www.lavanguardia.com", desc: "La Vanguardia, fundado em Barcelona em 1881, é o jornal catalão de referência e um dos mais lidos do país." },
+
+  // FRANCE
+  { id: "lemonde",      name: "Le Monde",           country: "França",       flag: "🇫🇷", lang: "fr", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/le-monde-FR.jpg",
+    url: "https://www.lemonde.fr", desc: "Le Monde é o jornal de referência francês, fundado em 1944. Considerado um dos jornais mais influentes do mundo." },
+  { id: "lefigaro",     name: "Le Figaro",          country: "França",       flag: "🇫🇷", lang: "fr", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/le-figaro-FR.jpg",
+    url: "https://www.lefigaro.fr", desc: "Le Figaro, fundado em 1826, é o jornal diário mais antigo de França ainda em circulação." },
+  { id: "liberation",   name: "Libération",         country: "França",       flag: "🇫🇷", lang: "fr", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/liberation-FR.jpg",
+    url: "https://www.liberation.fr", desc: "A Libération é um jornal francês de esquerda liberal, co-fundado por Jean-Paul Sartre em 1973." },
+
+  // GERMANY
+  { id: "sz",           name: "Süddeutsche Zeitung", country: "Alemanha",   flag: "🇩🇪", lang: "de", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/suddeutsche-zeitung-DE.jpg",
+    url: "https://www.sueddeutsche.de", desc: "A Süddeutsche Zeitung, fundada em 1945 em Munique, é o maior jornal diário nacional de qualidade da Alemanha." },
+  { id: "faz",          name: "Frankfurter Allgemeine", country: "Alemanha", flag: "🇩🇪", lang: "de", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/frankfurter-allgemeine-zeitung-DE.jpg",
+    url: "https://www.faz.net", desc: "A FAZ é um dos principais jornais alemães, com forte cobertura económica, política e cultural." },
+  { id: "dietime",      name: "Die Zeit",           country: "Alemanha",     flag: "🇩🇪", lang: "de", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/die-zeit-DE.jpg",
+    url: "https://www.zeit.de", desc: "Die Zeit é o semanário de referência alemão, fundado em Hamburgo em 1946, com foco em análise aprofundada." },
+
+  // UK
+  { id: "guardian",     name: "The Guardian",       country: "Reino Unido",  flag: "🇬🇧", lang: "en", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/the-guardian-GB.jpg",
+    url: "https://www.theguardian.com", desc: "The Guardian, fundado em 1821 em Manchester, é um dos jornais mais influentes do mundo, com forte tradição liberal." },
+  { id: "thetimes",     name: "The Times",          country: "Reino Unido",  flag: "🇬🇧", lang: "en", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/the-times-GB.jpg",
+    url: "https://www.thetimes.co.uk", desc: "The Times, fundado em 1785, é um dos jornais mais antigos do mundo ainda em publicação." },
+  { id: "ft",           name: "Financial Times",    country: "Reino Unido",  flag: "🇬🇧", lang: "en", type: "business",
+    cover: "https://img.kiosk.press/newspaper/financial-times-GB.jpg",
+    url: "https://www.ft.com", desc: "O Financial Times, reconhecível pelo seu papel cor salmão, é a referência mundial em jornalismo económico e financeiro." },
+  { id: "independent",  name: "The Independent",    country: "Reino Unido",  flag: "🇬🇧", lang: "en", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/the-independent-GB.jpg",
+    url: "https://www.independent.co.uk", desc: "The Independent, fundado em 1986, tornou-se o primeiro grande jornal britânico exclusivamente digital em 2016." },
+
+  // ITALY
+  { id: "corriere",     name: "Corriere della Sera", country: "Itália",     flag: "🇮🇹", lang: "it", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/corriere-della-sera-IT.jpg",
+    url: "https://www.corriere.it", desc: "O Corriere della Sera, fundado em Milão em 1876, é o jornal de maior circulação em Itália." },
+  { id: "larepubblica", name: "La Repubblica",      country: "Itália",       flag: "🇮🇹", lang: "it", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/la-repubblica-IT.jpg",
+    url: "https://www.repubblica.it", desc: "La Repubblica, fundado em 1976, é um dos jornais mais lidos de Itália, de orientação centro-esquerda." },
+
+  // NETHERLANDS
+  { id: "nrc",          name: "NRC Handelsblad",    country: "Holanda",      flag: "🇳🇱", lang: "nl", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/nrc-NL.jpg",
+    url: "https://www.nrc.nl", desc: "O NRC é o jornal de referência holandês, com forte tradição em jornalismo investigativo e análise política." },
+
+  // SWEDEN
+  { id: "svd",          name: "Svenska Dagbladet",  country: "Suécia",       flag: "🇸🇪", lang: "sv", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/svenska-dagbladet-SE.jpg",
+    url: "https://www.svd.se", desc: "O Svenska Dagbladet é um dos principais jornais diários suecos, fundado em Estocolmo em 1884." },
+
+  // POLAND
+  { id: "wyborcza",     name: "Gazeta Wyborcza",    country: "Polónia",      flag: "🇵🇱", lang: "pl", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/gazeta-wyborcza-PL.jpg",
+    url: "https://wyborcza.pl", desc: "A Gazeta Wyborcza é o jornal mais influente da Polónia, fundado em 1989, no contexto da transição democrática." },
+
+  // BELGIUM
+  { id: "lesoir",       name: "Le Soir",            country: "Bélgica",      flag: "🇧🇪", lang: "fr", type: "quality",
+    cover: "https://img.kiosk.press/newspaper/le-soir-BE.jpg",
+    url: "https://www.lesoir.be", desc: "Le Soir é o principal jornal belga francófono, fundado em Bruxelas em 1887." },
+];
+
+const COUNTRIES = [...new Set(NEWSPAPERS.map(n => n.country))];
+const FILTERS = [
+  { key: "all",      label: "Todos" },
+  { key: "pt",       label: "Portugal",     countries: ["Portugal"] },
+  { key: "iberia",   label: "Ibéria",       countries: ["Portugal","Espanha"] },
+  { key: "ES",       label: "Espanha",      countries: ["Espanha"] },
+  { key: "FR",       label: "França",       countries: ["França"] },
+  { key: "DE",       label: "Alemanha",     countries: ["Alemanha"] },
+  { key: "GB",       label: "Reino Unido",  countries: ["Reino Unido"] },
+  { key: "IT",       label: "Itália",       countries: ["Itália"] },
+  { key: "other",    label: "Outros",       countries: ["Holanda","Suécia","Polónia","Bélgica"] },
+];
+
+let activeFilter = "all";
+
+// Build filter bar
+const filterBar = document.getElementById("filterBar");
+FILTERS.forEach(f => {
+  const btn = document.createElement("button");
+  btn.className = "filter-btn" + (f.key === "all" ? " active" : "");
+  btn.textContent = f.label;
+  btn.dataset.key = f.key;
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = f.key;
+    renderGrid();
+  });
+  filterBar.appendChild(btn);
+});
+
+// Date
+const now = new Date();
+const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const dateStr = now.toLocaleDateString('pt-PT', opts);
+document.getElementById("today-date").textContent = dateStr;
+document.getElementById("dateBanner").textContent = "Capas do dia · " + dateStr.toUpperCase();
+
+function getFilteredPapers() {
+  if (activeFilter === "all") return NEWSPAPERS;
+  const f = FILTERS.find(x => x.key === activeFilter);
+  if (!f || !f.countries) return NEWSPAPERS;
+  return NEWSPAPERS.filter(n => f.countries.includes(n.country));
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const papers = getFilteredPapers();
+  if (papers.length === 0) {
+    grid.innerHTML = '<p class="no-results">Nenhum jornal disponível para este filtro.</p>';
+    return;
+  }
+  papers.forEach((paper, i) => {
+    const card = document.createElement("div");
+    card.className = "paper-card";
+    card.style.animationDelay = `${i * 40}ms`;
+    card.innerHTML = `
+      <div class="cover-wrap" id="wrap-${paper.id}">
+        <div class="loading-bar" id="loader-${paper.id}"></div>
+        <img class="cover-img" id="img-${paper.id}" src="" alt="Capa ${paper.name}" style="opacity:0">
+        <span class="flag-badge">${paper.flag}</span>
+      </div>
+      <div class="card-meta">
+        <div class="card-title">${paper.name}</div>
+        <div class="card-country">${paper.flag} ${paper.country}</div>
+        <a class="card-link" href="${paper.url}" target="_blank" onclick="event.stopPropagation()">Website →</a>
+      </div>`;
+    card.addEventListener("click", () => openModal(paper));
+    grid.appendChild(card);
+    loadCover(paper);
+  });
+}
+
+function loadCover(paper) {
+  const img = document.getElementById("img-" + paper.id);
+  const loader = document.getElementById("loader-" + paper.id);
+
+  // Use Newseum-style URL via kiosk.press CDN
+  const coverSrc = paper.cover;
+
+  img.onload = () => {
+    loader.style.display = "none";
+    img.style.opacity = "1";
+    img.style.transition = "opacity 0.4s";
+  };
+  img.onerror = () => {
+    loader.style.display = "none";
+    img.style.display = "none";
+    const wrap = document.getElementById("wrap-" + paper.id);
+    const ph = document.createElement("div");
+    ph.className = "cover-placeholder";
+    ph.innerHTML = `
+      <span style="font-size:2rem">${paper.flag}</span>
+      <span class="ph-name">${paper.name}</span>
+      <span class="ph-sub">${paper.country}</span>
+      <span class="ph-sub" style="font-size:8px;margin-top:6px;color:#b8952a">Capa não disponível</span>`;
+    wrap.appendChild(ph);
+  };
+  img.src = coverSrc;
+}
+
+// Modal
+const overlay = document.getElementById("modalOverlay");
+const modalImg = document.getElementById("modalImg");
+const modalTitle = document.getElementById("modalTitle");
+const modalCountry = document.getElementById("modalCountry");
+const modalDesc = document.getElementById("modalDesc");
+const modalLink = document.getElementById("modalLink");
+
+function openModal(paper) {
+  modalTitle.textContent = paper.name;
+  modalCountry.textContent = paper.flag + "  " + paper.country;
+  modalDesc.textContent = paper.desc;
+  modalLink.href = paper.url;
+  const src = document.getElementById("img-" + paper.id)?.src || paper.cover;
+  modalImg.src = src;
+  modalImg.onerror = () => { modalImg.style.display = "none"; };
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  overlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("modalClose").addEventListener("click", closeModal);
+overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+// Init
+renderGrid();
+</script>
+
+<!-- ═══ PWA: Install Banner ═══ -->
+<div id="install-banner">
+  <span class="banner-icon">📰</span>
+  <div class="banner-text">
+    <strong>Instalar Kiosque Europa</strong>
+    <span>Adicionar ao ecrã inicial · Funciona offline</span>
+  </div>
+  <button id="install-btn">Instalar</button>
+  <button id="install-dismiss">✕</button>
+</div>
+
+<!-- Offline Toast -->
+<div id="offline-toast">⚡ Sem ligação à internet</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  SERVICE WORKER via Blob (funciona num ficheiro HTML único)
+// ═══════════════════════════════════════════════
+const SW_CODE = `
+const CACHE = 'kiosque-v1';
+
+self.addEventListener('install', e => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  if (url.hostname.includes('kiosk.press') || url.hostname.includes('kiosk.pub')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(r => {
+          const clone = r.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return r;
+        })
+        .catch(() => caches.match(e.request).then(c => c || new Response('', {status: 503})))
+    );
+    return;
+  }
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request))
+  );
+});
+`;
+
+if ('serviceWorker' in navigator) {
+  try {
+    const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl)
+      .then(r => console.log('[PWA] SW registado'))
+      .catch(e => console.warn('[PWA] SW não suportado neste contexto:', e.message));
+  } catch(e) { /* silent */ }
+}
+
+// ═══════════════════════════════════════════════
+//  INSTALL PROMPT
+// ═══════════════════════════════════════════════
+let deferredPrompt = null;
+const banner   = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+const dismissBtn = document.getElementById('install-dismiss');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => banner.classList.add('visible'), 3500);
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  banner.classList.remove('visible');
+});
+
+dismissBtn.addEventListener('click', () => {
+  banner.classList.remove('visible');
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  banner.classList.remove('visible');
+});
+
+// ═══════════════════════════════════════════════
+//  ONLINE / OFFLINE
+// ═══════════════════════════════════════════════
+const offlineToast = document.getElementById('offline-toast');
+
+function checkOnline() {
+  if (!navigator.onLine) offlineToast.classList.add('visible');
+  else offlineToast.classList.remove('visible');
+}
+window.addEventListener('offline', checkOnline);
+window.addEventListener('online', checkOnline);
+checkOnline();
+</script>
+</body>
+</html>
