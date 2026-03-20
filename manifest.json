@@ -1,0 +1,20 @@
+{
+  "name": "Kiosque Europa",
+  "short_name": "Kiosque",
+  "description": "As principais capas dos jornais europeus",
+  "start_url": "/Kioske/",
+  "scope": "/Kioske/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f0e8",
+  "theme_color": "#0d0d0d",
+  "lang": "pt",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
